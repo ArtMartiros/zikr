@@ -1,0 +1,23 @@
+# Зависимости
+node_modules/
+
+# Сборка
+dist/
+*.local
+
+# Логи
+logs/
+*.log
+npm-debug.log*
+
+# Кэш инструментов
+.vite/
+.cache/
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store

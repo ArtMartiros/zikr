@@ -1,0 +1,1163 @@
+/* ── Шрифты ───────────────────────────────────────────────────────────────
+   Лежат рядом, а не на CDN: приложение обязано открываться без сети, а
+   гугловские шрифты в офлайне превратились бы в системный запасной вариант
+   с поехавшей вёрсткой. Кириллица и латиница Manrope — разными файлами,
+   чтобы латинский вес не тянулся ради подписи «AH».
+   Арабский — Amiri: наскх, для огласовок он куда честнее гротеска. */
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-cyrillic.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+2122, U+2212;
+}
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/amiri-arabic.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/amiri-arabic-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ── Палитра ──────────────────────────────────────────────────────────────
+   Тёмная — основная: зикр чаще читают в сумерках, после иши, и белый экран
+   в лицо здесь ни к чему. Ночной изумруд с золотом, светлая тема — тёплая
+   бумага. Обе заданы полностью, ни один цвет не живёт только внутри
+   медиазапроса. */
+
+:root {
+  --bg: #05100d;
+  --bg-2: #0a1a16;
+  --bg-3: #0d221c;
+  --ink: #eaf4ef;
+  --ink-2: #8ba59d;
+  --ink-3: #5a706a;
+  --jade: #43d9a3;
+  --jade-2: #1f9e75;
+  --gold: #e9c68a;
+  --gold-2: #b08c4e;
+  --danger: #ef8272;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.16);
+  --ornament: rgba(233, 198, 138, 0.03);
+  --glow: rgba(67, 217, 163, 0.28);
+  /* Непройденные бусины: заметно тусклее пройденных, но всё же видны —
+     иначе теряется главное, что кольцо и сообщает: сколько ещё осталось */
+  --bead: rgba(255, 255, 255, 0.15);
+  --shadow: 0 18px 50px -22px rgba(0, 0, 0, 0.9);
+  --nav-bg: rgba(8, 20, 17, 0.82);
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --tap: 0.16s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f7f3ea;
+  --bg-2: #fffdf8;
+  --bg-3: #f1ebdd;
+  --ink: #10231d;
+  --ink-2: #556962;
+  --ink-3: #8b9a94;
+  --jade: #0d8a63;
+  --jade-2: #0a6d4e;
+  --gold: #a9772a;
+  --gold-2: #8a601e;
+  --danger: #c2503c;
+  --surface: rgba(16, 35, 29, 0.035);
+  --surface-2: rgba(16, 35, 29, 0.07);
+  --line: rgba(16, 35, 29, 0.1);
+  --line-2: rgba(16, 35, 29, 0.2);
+  --ornament: rgba(16, 60, 45, 0.03);
+  --glow: rgba(13, 138, 99, 0.22);
+  --bead: rgba(16, 35, 29, 0.16);
+  --shadow: 0 16px 40px -24px rgba(30, 50, 40, 0.5);
+  --nav-bg: rgba(250, 247, 240, 0.86);
+}
+
+/* ── Основа ───────────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Экран целиком — рабочая поверхность счётчика: выделение текста и
+     системное меню по долгому тапу тут только мешают */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ── Каркас ───────────────────────────────────────────────────────────── */
+
+/* Высота именно фиксированная, а не минимальная. С min-height средняя
+   строка растёт под содержимое, каркас становится выше экрана и нижняя
+   навигация уезжает за край — а вместе с ней и возможность уйти с экрана.
+   При жёсткой высоте прокручивается только лента внутри. */
+.app {
+  position: relative;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-width: 560px;
+  margin: 0 auto;
+  isolation: isolate;
+}
+
+/* Свечение и орнамент — на фиксированном слое под всем содержимым, чтобы
+   не ездили при прокрутке ленты */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(105% 52% at 50% -8%, var(--bg-3) 0%, transparent 68%),
+    radial-gradient(90% 44% at 50% 106%, var(--bg-2) 0%, transparent 72%),
+    var(--bg);
+}
+
+.backdrop svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--ornament);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 8px;
+}
+
+.topbar h1 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.topbar .sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+.iconbtn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink-2);
+  transition: background var(--tap), color var(--tap), transform var(--tap);
+  flex: none;
+}
+.iconbtn:active {
+  background: var(--surface-2);
+  color: var(--ink);
+  transform: scale(0.92);
+}
+
+.screen {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 16px 20px;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Нижняя навигация ─────────────────────────────────────────────────── */
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 6px 12px calc(env(safe-area-inset-bottom) + 6px);
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-top: 1px solid var(--line);
+}
+
+.nav button {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  padding: 7px 0 5px;
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color var(--tap), transform var(--tap);
+}
+.nav button[data-on="true"] {
+  color: var(--jade);
+}
+.nav button:active {
+  transform: scale(0.94);
+}
+.nav svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* ── Счётчик ──────────────────────────────────────────────────────────── */
+
+.counter {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+  min-height: 0;
+}
+
+/* Фраза и кольцо центрируются вместе, а не разлетаются по краям: иначе
+   между текстом и счётчиком зияет дыра в треть экрана, и композиция
+   рассыпается на два не связанных куска. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(10px, 3.4vh, 30px);
+}
+
+/* Вся середина экрана — кнопка. Одной рукой в транспорте попасть в
+   маленький кружок невозможно, поэтому кружок только рисует, а считает
+   область целиком. */
+.tapzone {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.phrase {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  text-align: center;
+  padding: 0 4px;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  min-height: 118px;
+}
+
+.phrase .ar {
+  font-family: "Amiri", "Geeza Pro", serif;
+  font-size: clamp(28px, 8.4vw, 38px);
+  line-height: 1.75;
+  direction: rtl;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+.phrase .ar.long {
+  font-size: clamp(20px, 6vw, 27px);
+  line-height: 1.85;
+}
+/* Дуа ночи Кадр длиннее прочих фраз втрое: два кегля тут не спасают,
+   нужен третий, иначе строка либо режется, либо съедает кольцо */
+.phrase .ar.xlong {
+  font-size: clamp(17px, 4.9vw, 22px);
+  line-height: 1.95;
+}
+.phrase .tr {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.005em;
+}
+.phrase .ru {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.dial {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  flex: none;
+}
+
+.dial svg {
+  width: min(78vw, 330px);
+  height: min(78vw, 330px);
+  display: block;
+  overflow: visible;
+}
+
+.dial .track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.dial .prog {
+  fill: none;
+  stroke: url(#ringGrad);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.32s cubic-bezier(0.2, 0.85, 0.3, 1);
+  filter: drop-shadow(0 0 12px var(--glow));
+}
+.dial .arcbed {
+  fill: none;
+  stroke: var(--bead);
+  stroke-width: 9;
+}
+
+/* Бусины: при цели до сорока кольцо превращается в настоящие чётки —
+   одна бусина на одно произнесение. Дальше зерно стало бы кашей, и
+   прогресс рисуется дугой. */
+.dial .bead {
+  fill: var(--bead);
+  transition: fill 0.2s ease, r 0.2s ease;
+}
+.dial .bead[data-on="true"] {
+  fill: var(--jade);
+}
+.dial .bead[data-last="true"] {
+  fill: var(--gold);
+}
+.dial .beads {
+  filter: drop-shadow(0 0 7px var(--glow));
+}
+
+/* Мягкое свечение под числом наливается вместе со счётом */
+.dial .halo {
+  fill: url(#haloGrad);
+  transition: opacity 0.35s ease;
+}
+
+.dial .inner {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.count {
+  font-size: clamp(64px, 22vw, 96px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.count.pop {
+  animation: pop 0.26s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  38% {
+    transform: scale(1.09);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.of {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Точки шагов набора: видно, что тасбих идёт 33 → 33 → 34 */
+.steps {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.steps i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line-2);
+  transition: background var(--tap), transform var(--tap);
+}
+.steps i[data-on="true"] {
+  background: var(--gold);
+  transform: scale(1.35);
+}
+.steps i[data-done="true"] {
+  background: var(--jade-2);
+}
+
+.footbar {
+  position: relative;
+  z-index: 2;
+  /* Полоса тянется во всю ширину, и её пустая середина иначе съедала бы
+     тапы, которые человек считает попаданием по экрану счётчика */
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 2px 14px;
+}
+
+.laps {
+  pointer-events: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.laps b {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 650;
+  transition: transform var(--tap), background var(--tap), color var(--tap);
+}
+.pill:active {
+  transform: scale(0.94);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.pill svg {
+  width: 16px;
+  height: 16px;
+}
+.pill[data-armed="true"] {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* Волна от точки касания — единственное подтверждение, что тап попал,
+   когда экран смотрят краем глаза */
+.ripple {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--jade);
+  pointer-events: none;
+  animation: ripple 0.55s cubic-bezier(0.15, 0.7, 0.3, 1) forwards;
+}
+@keyframes ripple {
+  from {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(22);
+  }
+}
+
+/* Вспышка при закрытии круга */
+.flash {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 46%, var(--gold) 0%, transparent 58%);
+  animation: flash 0.72s ease-out forwards;
+}
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.banner {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  text-align: center;
+  animation: banner 1.5s ease-out forwards;
+}
+.banner b {
+  display: block;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+.banner span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+@keyframes banner {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -34%) scale(0.9);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  74% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -62%) scale(1);
+  }
+}
+
+/* ── Карточки и списки ────────────────────────────────────────────────── */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+
+.card.accent {
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--jade) 16%, transparent),
+    color-mix(in srgb, var(--gold) 8%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--jade) 26%, transparent);
+}
+
+.sectitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 22px 4px 9px;
+}
+.sectitle:first-child {
+  margin-top: 8px;
+}
+
+.rows {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  transition: background var(--tap);
+}
+.row:last-child {
+  border-bottom: 0;
+}
+.row:active {
+  background: var(--surface-2);
+}
+.row .grow {
+  flex: 1;
+  min-width: 0;
+}
+.row .grow > * {
+  /* Строки собраны из span'ов, а инлайновый span игнорирует ширину и
+     ложится в одну строку с подписью: «Кибла195° · Ю» вместо двух строк */
+  display: block;
+}
+.row .name {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+}
+.row .hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.row .val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+/* ── Намаз ────────────────────────────────────────────────────────────── */
+
+.next {
+  display: grid;
+  gap: 3px;
+  padding: 16px 18px;
+}
+.next .label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.next .name {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.next .time {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 2px;
+}
+.next .time b {
+  font-size: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--jade);
+}
+.next .time span {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.prayerrow {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  transition: background var(--tap);
+}
+.prayerrow:last-child {
+  border-bottom: 0;
+}
+.prayerrow:active {
+  background: var(--surface-2);
+}
+.prayerrow[data-now="true"] {
+  background: color-mix(in srgb, var(--jade) 9%, transparent);
+  box-shadow: inset 3px 0 0 var(--jade);
+}
+.prayerrow[data-passive="true"] {
+  opacity: 0.62;
+}
+
+.tick {
+  width: 25px;
+  height: 25px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.8px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  transition: all var(--tap);
+}
+.tick[data-on="true"] {
+  background: var(--jade);
+  border-color: var(--jade);
+  color: var(--bg);
+}
+.tick svg {
+  width: 14px;
+  height: 14px;
+}
+
+.prayerrow .pname {
+  font-size: 16px;
+  font-weight: 650;
+  flex: 1;
+}
+.prayerrow .ptime {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.prayerrow[data-passive="true"] .ptime,
+.prayerrow[data-passive="true"] .pname {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.est {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  border-radius: 5px;
+  padding: 1px 4px;
+  margin-left: 6px;
+  vertical-align: 2px;
+}
+
+/* ── Кибла ────────────────────────────────────────────────────────────── */
+
+.qibla {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: 20px 16px 18px;
+}
+.compass {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  display: grid;
+  place-items: center;
+}
+.compass svg {
+  width: 100%;
+  height: 100%;
+}
+.compass .face {
+  transition: transform 0.16s linear;
+}
+.qmeta {
+  text-align: center;
+}
+.qmeta b {
+  font-size: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.qmeta div {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  font-weight: 550;
+  margin-top: 2px;
+}
+
+/* ── Прогресс ─────────────────────────────────────────────────────────── */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px 15px;
+}
+.tile .k {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.tile .v {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+.tile .v small {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink-3);
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+.tile.gold .v {
+  color: var(--gold);
+}
+.tile.jade .v {
+  color: var(--jade);
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 108px;
+  padding: 4px 2px 0;
+}
+.chart .bar {
+  flex: 1;
+  display: grid;
+  align-content: end;
+  gap: 5px;
+  justify-items: center;
+}
+.chart .fill {
+  width: 100%;
+  border-radius: 5px 5px 3px 3px;
+  background: linear-gradient(180deg, var(--jade), var(--jade-2));
+  min-height: 3px;
+  transition: height 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.chart .fill[data-empty="true"] {
+  background: var(--surface-2);
+}
+.chart .d {
+  font-size: 9.5px;
+  font-weight: 650;
+  color: var(--ink-3);
+}
+.chart .bar[data-today="true"] .d {
+  color: var(--gold);
+}
+
+.grid7 {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.grid7 .col {
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+}
+.grid7 .dot {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 22px;
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+.grid7 .dot[data-on="true"] {
+  background: var(--jade);
+}
+.grid7 .lbl {
+  font-size: 9.5px;
+  font-weight: 650;
+  color: var(--ink-3);
+  margin-bottom: 1px;
+}
+
+.legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  font-weight: 550;
+}
+
+/* ── Шторка ───────────────────────────────────────────────────────────── */
+
+.sheetwrap {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  animation: fade 0.22s ease forwards;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow);
+  animation: rise 0.28s cubic-bezier(0.2, 0.85, 0.3, 1) forwards;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@keyframes rise {
+  from {
+    transform: translateY(22px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sheet .grab {
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line-2);
+  margin: 9px auto 2px;
+  flex: none;
+}
+.sheet header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 10px 18px;
+  flex: none;
+}
+.sheet header h2 {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 750;
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+.sheet .body {
+  overflow-y: auto;
+  padding: 0 16px 20px;
+  scrollbar-width: none;
+}
+.sheet .body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Мелочи форм ──────────────────────────────────────────────────────── */
+
+.switch {
+  width: 46px;
+  height: 28px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  position: relative;
+  transition: background var(--tap), border-color var(--tap);
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2.5px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--ink-2);
+  transition: transform var(--tap), background var(--tap);
+}
+.switch[data-on="true"] {
+  background: var(--jade);
+  border-color: var(--jade);
+}
+.switch[data-on="true"]::after {
+  transform: translateX(18px);
+  background: var(--bg);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.chip {
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 650;
+  transition: all var(--tap);
+}
+.chip:active {
+  transform: scale(0.95);
+}
+.chip[data-on="true"] {
+  background: color-mix(in srgb, var(--jade) 18%, transparent);
+  border-color: var(--jade);
+  color: var(--ink);
+}
+
+.field {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.field:focus {
+  outline: none;
+  border-color: var(--jade);
+}
+.field::placeholder {
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.bigbtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--jade);
+  color: #04140f;
+  font-size: 15px;
+  font-weight: 750;
+  transition: transform var(--tap), opacity var(--tap);
+}
+.bigbtn:active {
+  transform: scale(0.98);
+}
+.bigbtn[data-ghost="true"] {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+}
+.bigbtn[data-danger="true"] {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+}
+.bigbtn[disabled] {
+  opacity: 0.45;
+}
+
+.note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  font-weight: 500;
+  padding: 9px 4px 0;
+}
+.note b {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+.empty {
+  text-align: center;
+  padding: 34px 20px;
+  color: var(--ink-3);
+  font-size: 13.5px;
+  font-weight: 550;
+  line-height: 1.6;
+}
+
+/* Отключаем анимации, если система просит покоя */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

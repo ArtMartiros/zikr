@@ -1,0 +1,21 @@
+{
+  "name": "zikr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "icons": "node scripts/icons.mjs",
+    "check": "node check/counter.mjs && node check/prayer-times.mjs && node check/hijri.mjs && node check/qibla.mjs && node check/dhikr.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.0",
+    "sharp": "^0.35.3",
+    "vite": "^8.2.2"
+  }
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <title>Зикр — счётчик молитв</title>
+    <meta name="description" content="Тасбих, времена намаза, кибла и статистика. Работает без интернета." />
+    <!-- Цвет строки состояния совпадает с фоном темы: значение подменяет App при смене темы -->
+    <meta name="theme-color" content="#05100D" />
+    <!-- Пути относительные: страница живёт в подпапке /zikr/, и так они верны
+         и в сборке, и на дев-сервере, без подстановки базы. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <!-- iOS не умеет svg в apple-touch-icon и не читает манифест для ярлыка -->
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Зикр" />
+    <!-- Заставка тёмная до загрузки скриптов, чтобы не мигало белым в standalone -->
+    <style>
+      html { background: #05100D; }
+      @media (prefers-color-scheme: light) { html { background: #F7F3EA; } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
