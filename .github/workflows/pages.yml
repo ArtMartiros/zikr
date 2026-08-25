@@ -1,0 +1,67 @@
+# Сборка и публикация на GitHub Pages.
+# Проверки здесь не приложение к сборке, а ворота: расчёт времени намаза
+# и счётчик зикров — то, что человек не станет перепроверять руками, и
+# тихая ошибка в них дороже упавшего деплоя.
+name: Проверка и публикация
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Счёт, светила и данные
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Счётчик не теряет произнесения
+        run: node check/counter.mjs
+      - name: Времена намаза сходятся с реальностью
+        run: node check/prayer-times.mjs
+      - name: Хиджра совпадает с Умм аль-Кура
+        run: node check/hijri.mjs
+      - name: Кибла указывает на Каабу
+        run: node check/qibla.mjs
+      - name: Зикры, города и часовые пояса
+        run: node check/dhikr.mjs
+
+  build:
+    name: Сборка
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Публикация
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
