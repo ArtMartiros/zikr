@@ -192,17 +192,6 @@ function touchDay(s, key, fn) {
   return { ...s, days: { ...s.days, [key]: fn(day) } };
 }
 
-export function addCount(setId, delta) {
-  const key = dayKey();
-  update((s) =>
-    touchDay(s, key, (day) => ({
-      ...day,
-      total: Math.max(0, day.total + delta),
-      bySet: { ...day.bySet, [setId]: Math.max(0, (day.bySet[setId] || 0) + delta) },
-    }))
-  );
-}
-
 export function togglePrayer(prayerKey, dateKey = dayKey()) {
   update((s) =>
     touchDay(s, dateKey, (day) => ({
