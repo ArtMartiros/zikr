@@ -8,7 +8,7 @@ import PlacePicker from "./components/PlacePicker.jsx";
 import Settings from "./components/Settings.jsx";
 import Ornament from "./components/Ornament.jsx";
 import { BeadsIcon, MosqueIcon, ChartIcon, GearIcon } from "./components/Icons.jsx";
-import { useStore, useNow } from "./lib/use.js";
+import { useStore, useNow, useSheetHistory } from "./lib/use.js";
 import { keepAwake, watchWakeLock, unlockAudio } from "./lib/feedback.js";
 import { prayerDay, currentAndNext, PRAYER_NAMES } from "./lib/prayer-times.mjs";
 import { timeAt } from "./lib/format.js";
@@ -48,6 +48,7 @@ export default function App() {
   const now = useNow(30000);
 
   useThemeColor(state.settings.theme);
+  useSheetHistory(sheet !== null, () => setSheet(null));
 
   /* Замок экрана держим только на счётчике: на остальных вкладках держать
      телефон разбуженным незачем, а батарею жалко. */

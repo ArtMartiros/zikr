@@ -3,20 +3,17 @@ import { CloseIcon } from "./Icons.jsx";
 
 /* Шторка снизу — единственный способ показать что-то поверх на телефоне,
    не уводя человека с экрана и не ломая счётчик. Закрывается тапом по фону,
-   кнопкой и системной «назад»: последнее делается записью в историю, иначе
-   на Android жест назад выкидывал бы из приложения целиком. */
+   кнопкой, клавишей Escape и системной «назад».
+
+   Историю браузера шторка НЕ ведёт: этим занимается useSheetHistory у того,
+   кто шторками распоряжается. Когда каждая вела свою запись сама, переход
+   «Настройки → Место» открывал вторую шторку и тут же закрывал её чужим
+   откатом. */
 export default function Sheet({ title, onClose, children, action }) {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    history.pushState({ sheet: true }, "");
-    const onPop = () => onClose();
-    window.addEventListener("popstate", onPop);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("popstate", onPop);
-      if (history.state?.sheet) history.back();
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
   return (

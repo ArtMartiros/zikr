@@ -4,7 +4,7 @@ import { hijriOf, formatHijri, hijriNote } from "../lib/hijri.mjs";
 import { qiblaBearing, qiblaDistance, compassSide } from "../lib/qibla.mjs";
 import { togglePrayer, dayKey } from "../lib/store.js";
 import { haptic } from "../lib/feedback.js";
-import { useNow } from "../lib/use.js";
+import { useNow, useSheetHistory } from "../lib/use.js";
 import { timeAt, dateLong, timeLeft } from "../lib/format.js";
 import { CheckIcon, PinIcon, CompassIcon, ChevronIcon } from "../components/Icons.jsx";
 import Qibla from "../components/Qibla.jsx";
@@ -13,6 +13,7 @@ export default function Prayers({ state, onPickPlace }) {
   const { place, settings, days } = state;
   const now = useNow(15000);
   const [qiblaOpen, setQiblaOpen] = useState(false);
+  useSheetHistory(qiblaOpen, () => setQiblaOpen(false));
 
   const day = useMemo(
     () => (place ? prayerDay(place, now, settings) : null),
